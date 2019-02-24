@@ -1,0 +1,44 @@
+esphomeyaml:
+  name: mirabella_genio_rgbw
+  platform: ESP8266
+  board: esp01_1m
+
+substitutions: !include substitutions.yaml
+
+wifi:
+  ssid: ${wifi_ssid}
+  password: ${wifi_password}
+  fast_connect: true
+
+ota:
+  password: ${ota_password}
+
+mqtt:
+  broker: ${mqtt_broker}
+
+logger:
+  
+web_server:
+  port: 80
+
+output:
+  - platform: esp8266_pwm
+    id: output_red
+    pin: GPIO4
+  - platform: esp8266_pwm
+    id: output_green
+    pin: GPIO12
+  - platform: esp8266_pwm
+    id: output_blue
+    pin: GPIO14
+  - platform: esp8266_pwm
+    id: output_white
+    pin: GPIO5
+
+light:
+  - platform: rgbw
+    name: "mirabella_genio_rgbw"
+    red: output_red
+    green: output_green
+    blue: output_blue
+    white: output_white
