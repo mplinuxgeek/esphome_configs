@@ -1,0 +1,51 @@
+esphomeyaml:
+  name: tuya_rgbw_my9291
+  platform: ESP8266
+  board: esp01_1m
+
+substitutions: !include substitutions.yaml
+
+wifi:
+  ssid: ${wifi_ssid}
+  password: ${wifi_password}
+  fast_connect: true
+
+ota:
+  password: ${ota_password}
+
+mqtt:
+  broker: ${mqtt_broker}
+
+logger:
+  
+web_server:
+  port: 80
+
+my9231:
+ data_pin: GPIO13
+ clock_pin: GPIO15
+ num_channels: 6
+ num_chips: 2
+
+output:
+  - platform: my9231
+    id: output_blue
+    channel: 1
+  - platform: my9231
+    id: output_red
+    channel: 3
+  - platform: my9231
+    id: output_green
+    channel: 2
+  - platform: my9231
+    id: output_white
+    channel: 0
+
+light:
+  - platform: rgbw
+    name: tuya_rgbw_my9291
+    default_transition_length: 0s
+    red: output_red
+    green: output_green
+    blue: output_blue
+    white: output_white
