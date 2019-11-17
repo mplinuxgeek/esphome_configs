@@ -1,0 +1,91 @@
+esphome:
+  name: bedroom_light
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: ''
+  password: ''
+
+web_server:
+  port: 80
+  
+mqtt:
+  broker: 192.168.1.60
+
+logger:
+
+ota:
+  password: ''
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: Australia/Adelaide
+    
+light:
+  - platform: fastled_clockless
+    chipset: WS2812B
+    pin: GPIO14
+    num_leds: 16
+    rgb_order: GRB
+    name: "Bedroom Light"
+    id: "light_1"
+    effects:
+      - strobe:
+          name: Police Light
+          colors:
+            - state: True
+              brightness: 100%
+              red: 100%
+              green: 0%
+              blue: 0%
+              duration: 250ms
+            - state: True
+              brightness: 100%
+              red: 0%
+              green: 0%
+              blue: 100%
+              duration: 250ms
+      - random:
+          name: "Random"
+          transition_length: 4s
+          update_interval: 5s
+              
+dallas:
+  - pin: GPIO2
+    update_interval: 2s
+
+sensor:
+  - platform: dallas
+    address: 0x47000003B0D58D28
+    name: "Bedroom Temperature"
+    id: ds18b20
+    on_value:
+      - lambda: |-
+          auto time = id(sntp_time).now();
+          auto call = id(light_1).turn_on();
+          if (id(ds18b20).state > 28.0) {
+            call.set_rgb(1.0, 0, 0);
+          } else if (id(ds18b20).state > 26.0) {
+            call.set_rgb(1.0, 0.75, 0);
+          } else if (id(ds18b20).state > 24.0) {
+            call.set_rgb(1.0, 1.00, 0);
+          } else if (id(ds18b20).state > 20) {
+            call.set_rgb(0, 1.0, 0);
+          } else if (id(ds18b20).state > 18) {
+            call.set_rgb(0, 1.0, 1.00);
+          } else if (id(ds18b20).state < 18) {
+            call.set_rgb(0, 0, 1.0);
+          }
+          if (time.hour > 21 || time.hour < 8) {
+            call.set_brightness(0.20);
+          } else {
+            call.set_brightness(0.50);
+          }
+          call.perform();
+
+switch:
+  - platform: restart
+    name: "Restart"
+
